@@ -60,3 +60,13 @@ process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.RAWSIMoutput_step)
+
+import sys
+if not "crab" in sys.argv[0]:
+  from FWCore.ParameterSet.VarParsing import VarParsing
+  options = VarParsing ('analysis')
+  options.parseArguments()
+  if options.inputFiles != []:
+    process.source.fileNames=options.inputFiles
+  if options.outputFile != 'output.root'
+    process.RAWSIMoutput.fileName = options.outputFile
