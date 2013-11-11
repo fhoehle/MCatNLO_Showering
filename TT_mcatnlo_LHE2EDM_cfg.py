@@ -65,10 +65,9 @@ import sys
 if not "crab" in sys.argv[0]:
   from FWCore.ParameterSet.VarParsing import VarParsing
   options = VarParsing ('analysis')
-  options.register ('dumpPythonOnly',
+  options.register('dumpPythonOnly',
           '',
-          VarParsing.multiplicity.singleton,
-          VarParsing.varType.string,
+          VarParsing.multiplicity.singleton, VarParsing.varType.string,
           "dump only python cfg for later use")
   options.parseArguments()
   if options.inputFiles != []:
