@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:../MCatNLO2LHE/template/TT_MCatNLO_START42_V14B_LHE2EDM.root')
+    fileNames = cms.untracked.vstring('file:TT_mcatnlo_LHE2EDM.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -61,7 +61,8 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'START42_V14B::All'
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
 
 process.generator = cms.EDFilter("Herwig6HadronizerFilter",
     HerwigParameters = cms.PSet(
@@ -100,3 +101,22 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
+###############
+import sys
+if not "crab" in sys.argv[0]:
+  from FWCore.ParameterSet.VarParsing import VarParsing
+  options = VarParsing ('analysis')
+  options.register('dumpPythonOnly',
+          '',
+          VarParsing.multiplicity.singleton, VarParsing.varType.string,
+          "dump only python cfg for later use")
+  options.parseArguments()
+  if options.inputFiles != []:
+    process.source.fileNames=options.inputFiles
+  if options.outputFile != 'output.root':
+    process.RAWSIMoutput.fileName = options.outputFile
+  if options.dumpPythonOnly != "":
+   with open(options.dumpPythonOnly,"w") as cfg:
+     cfg.write(process.dumpPython())
+   print "python dump done"
+   sys.exit(0)

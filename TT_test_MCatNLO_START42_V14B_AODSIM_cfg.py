@@ -45,11 +45,14 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 # Output definition
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
+
 
 process.AODSIMoutput = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
     outputCommands = process.AODSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('TT_test_MCatNLO_START42_V14B_AODSIM.root'),
+    fileName = cms.untracked.string('TT_test_MCatNLO_'+process.GlobalTag.globaltag.split(':')[0]+'_AODSIM.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('AODSIM')
@@ -59,7 +62,6 @@ process.AODSIMoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'START42_V12::All'
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi)
@@ -74,3 +76,22 @@ process.AODSIMoutput_step = cms.EndPath(process.AODSIMoutput)
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
 process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.raw2digi_step,process.reconstruction_step,process.endjob_step,process.AODSIMoutput_step])
+
+import sys
+if not "crab" in sys.argv[0]:
+  from FWCore.ParameterSet.VarParsing import VarParsing
+  options = VarParsing ('analysis')
+  options.register('dumpPythonOnly',
+          '',
+          VarParsing.multiplicity.singleton, VarParsing.varType.string,
+          "dump only python cfg for later use")
+  options.parseArguments()
+  if options.inputFiles != []:
+    process.source.fileNames=options.inputFiles
+  if options.outputFile != 'output.root':
+    process.AODSIMoutput.fileName = options.outputFile
+  if options.dumpPythonOnly != "":
+   with open(options.dumpPythonOnly,"w") as cfg:
+     cfg.write(process.dumpPython())
+   print "python dump done"
+   sys.exit(0)

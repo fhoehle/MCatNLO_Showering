@@ -53,7 +53,8 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'START42_V12::All'
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
 
 # Path and EndPath definitions
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
